@@ -42,7 +42,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 print(f"Entrainement : {X_train.shape[0]} patients")
 print(f"Test : {X_test.shape[0]} patients")
 
-from sklearn.ensemble import RandomForestClassifier
+""" from sklearn.ensemble import RandomForestClassifier
 
 # Creer le modele
 model = RandomForestClassifier(
@@ -56,9 +56,9 @@ model.fit(X_train, y_train)
 print("Modele entraine !")
 print(f"Nombre d’arbres : {model.n_estimators}")
 print(f"Nombre de features : {model.n_features_in_}")
-print(f"Classes : {list(model.classes_)}")
+print(f"Classes : {list(model.classes_)}") """
 
-# Predire sur les donnees de test
+""" # Predire sur les donnees de test
 y_pred = model.predict(X_test)
 
 # Comparer les 10 premieres predictions avec la realite
@@ -67,14 +67,14 @@ comparaison = pd.DataFrame({
     'Prediction': y_pred[:10]
 })
 
-print(comparaison)
+print(comparaison) """
 
-from sklearn.metrics import accuracy_score
+""" from sklearn.metrics import accuracy_score
 
 accuracy = accuracy_score(y_test, y_pred)
-print(f"Accuracy : {accuracy:.2%}")
+print(f"Accuracy : {accuracy:.2%}") """
 
-from sklearn.metrics import confusion_matrix, classification_report
+""" from sklearn.metrics import confusion_matrix, classification_report
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -87,7 +87,7 @@ print(cm)
 # 2. Rapport de classification détaillé
 # Donne la précision et le rappel pour chaque maladie (grippe, palu, etc.)
 print("\nRapport de classification :")
-print(classification_report(y_test, y_pred))
+print(classification_report(y_test, y_pred)) """
 
 """ # Visualiser avec seaborn
 plt.figure(figsize=(8, 6))
@@ -109,7 +109,7 @@ print("Figure sauvegardee dans figures/confusion_matrix.png") """
 import joblib
 import os
 
-# 1. Créer le dossier 'models/' s'il n'existe pas
+""" # 1. Créer le dossier 'models/' s'il n'existe pas
 os.makedirs("models", exist_ok=True) # exist_ok évite l'erreur si le dossier existe déjà
 
 # 2. Sauvegarder le modèle entraîné
@@ -119,9 +119,9 @@ joblib.dump(model, "models/model.pkl")
 # 3. Vérifier la taille du fichier pour s'assurer que tout est ok
 size = os.path.getsize("models/model.pkl")
 print(f"Modele sauvegarde : models/model.pkl")
-print(f"Taille : {size / 1024:.1f} Ko")
+print(f"Taille : {size / 1024:.1f} Ko") """
 
-import joblib
+""" import joblib
 
 # Sauvegarder les encodeurs pour transformer le sexe et la region plus tard
 joblib.dump(le_sexe, "models/encoder_sexe.pkl")
@@ -130,7 +130,7 @@ joblib.dump(le_region, "models/encoder_region.pkl")
 # Sauvegarder l'ordre des colonnes pour ne pas faire d'erreur de saisie
 joblib.dump(feature_cols, "models/feature_cols.pkl")
 
-print("Encodeurs et metadata sauvegardes.")
+print("Encodeurs et metadata sauvegardes.") """
 
 # Simuler ce que fera l’API en Lab 3 :
 # Charger le modele DEPUIS LE FICHIER (pas depuis la memoire)
@@ -141,7 +141,7 @@ le_region_loaded = joblib.load("models/encoder_region.pkl")
 print(f"Modele recharge : {type(model_loaded).__name__}")
 print(f"Classes : {list(model_loaded.classes_)}")
 
-# Un nouveau patient arrive au centre de sante de Medina
+""" # Un nouveau patient arrive au centre de sante de Medina
 nouveau_patient = {
     'age': 28,
     'sexe': 'F',
@@ -176,6 +176,145 @@ proba_max = probas.max()
 
 print(f"\n--- Resultat du pre-diagnostic ---")
 print(f"Patient : {nouveau_patient['sexe']}, {nouveau_patient['age']} ans")
+print(f"Diagnostic : {diagnostic}")
+print(f"Probabilite : {proba_max:.1%}")
+
+print("\nProbabilites par classe :")
+for classe, proba in zip(model_loaded.classes_, probas):
+    bar = '#' * int(proba * 30)
+    print(f" {classe:8s} : {proba:.1%} {bar}") """
+
+
+""" importances = model.feature_importances_
+for name, imp in sorted(zip(feature_cols, importances),
+                        key=lambda x: x[1], reverse=True):
+    print(f" {name:20s} : {imp:.3f}") """
+
+
+""" # Premier patient fictif (jeune sans symptomes)
+patient1 = {
+    'age': 17,
+    'sexe': 'M',
+    'temperature': 37,
+    'tension_sys': 110,
+    'toux': False,
+    'fatigue': False,
+    'maux_tete': False,
+    'region': 'Dakar'
+}
+
+# Encoder les valeurs categoriques
+sexe_enc = le_sexe_loaded.transform([patient1['sexe']])[0]
+region_enc = le_region_loaded.transform([patient1['region']])[0]
+
+# Preparer le vecteur de features
+features = [
+    patient1['age'],
+    sexe_enc,
+    patient1['temperature'],
+    patient1['tension_sys'],
+    int(patient1['toux']),
+    int(patient1['fatigue']),
+    int(patient1['maux_tete']),
+    region_enc
+]
+
+# Predire
+diagnostic = model_loaded.predict([features])[0]
+probas = model_loaded.predict_proba([features])[0]
+proba_max = probas.max()
+
+print(f"\n--- Resultat du pre-diagnostic du patient 1 ---")
+print(f"Patient : {patient1['sexe']}, {patient1['age']} ans")
+print(f"Diagnostic : {diagnostic}")
+print(f"Probabilite : {proba_max:.1%}")
+
+print("\nProbabilites par classe :")
+for classe, proba in zip(model_loaded.classes_, probas):
+    bar = '#' * int(proba * 30)
+    print(f" {classe:8s} : {proba:.1%} {bar}") """
+
+
+
+""" # Deuxième patient fictif (adulte avec forte fièvre)
+patient2 = {
+    'age': 41,
+    'sexe': 'M',
+    'temperature': 39.6,
+    'tension_sys': 110,
+    'toux': False,
+    'fatigue': False,
+    'maux_tete': False,
+    'region': 'Dakar'
+}
+
+# Encoder les valeurs categoriques
+sexe_enc = le_sexe_loaded.transform([patient2['sexe']])[0]
+region_enc = le_region_loaded.transform([patient2['region']])[0]
+
+# Preparer le vecteur de features
+features = [
+    patient2['age'],
+    sexe_enc,
+    patient2['temperature'],
+    patient2['tension_sys'],
+    int(patient2['toux']),
+    int(patient2['fatigue']),
+    int(patient2['maux_tete']),
+    region_enc
+]
+
+# Predire
+diagnostic = model_loaded.predict([features])[0]
+probas = model_loaded.predict_proba([features])[0]
+proba_max = probas.max()
+
+print(f"\n--- Resultat du pre-diagnostic du patient 2 ---")
+print(f"Patient : {patient2['sexe']}, {patient2['age']} ans")
+print(f"Diagnostic : {diagnostic}")
+print(f"Probabilite : {proba_max:.1%}")
+
+print("\nProbabilites par classe :")
+for classe, proba in zip(model_loaded.classes_, probas):
+    bar = '#' * int(proba * 30)
+    print(f" {classe:8s} : {proba:.1%} {bar}") """
+
+
+# Troisième patient fictif (agé avec toux)
+patient3 = {
+    'age': 65,
+    'sexe': 'M',
+    'temperature': 37,
+    'tension_sys': 110,
+    'toux': True,
+    'fatigue': False,
+    'maux_tete': False,
+    'region': 'Dakar'
+}
+
+# Encoder les valeurs categoriques
+sexe_enc = le_sexe_loaded.transform([patient3['sexe']])[0]
+region_enc = le_region_loaded.transform([patient3['region']])[0]
+
+# Preparer le vecteur de features
+features = [
+    patient3['age'],
+    sexe_enc,
+    patient3['temperature'],
+    patient3['tension_sys'],
+    int(patient3['toux']),
+    int(patient3['fatigue']),
+    int(patient3['maux_tete']),
+    region_enc
+]
+
+# Predire
+diagnostic = model_loaded.predict([features])[0]
+probas = model_loaded.predict_proba([features])[0]
+proba_max = probas.max()
+
+print(f"\n--- Resultat du pre-diagnostic du patient 3 ---")
+print(f"Patient : {patient3['sexe']}, {patient3['age']} ans")
 print(f"Diagnostic : {diagnostic}")
 print(f"Probabilite : {proba_max:.1%}")
 
