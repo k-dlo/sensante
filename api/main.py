@@ -101,3 +101,30 @@ def predict(patient: PatientInput):
         confiance=confiance,
         message=messages.get(diagnostic, "Consultez un medecin.")
     )
+
+# Exercice1
+
+@app.get("/model-info")
+def model_informations():
+    """
+    Renvoie des informations sur le modèle.
+    """
+    return {
+        "type":  type(model).__name__,
+        "Nbre d'arbres": model.n_estimators,
+        "Classes": list(model.classes_),
+        "Nbre de features":  model.n_features_in_,
+    }
+
+
+from fastapi.middleware.cors import CORSMiddleware
+
+# Autoriser les requetes depuis le frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],     # En dev : tout accepter
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
